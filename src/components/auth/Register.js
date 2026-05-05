@@ -106,6 +106,13 @@ export const Register = ({setToken}) => {
         </div>
 
       </form>
+
+      <dialog ref={passwordDialog}>
+        <div className="notification is-danger">
+          <p>Passwords do not match. Please try again.</p>
+          <button className="button mt-3" onClick={() => passwordDialog.current.close()}>Close</button>
+        </div>
+      </dialog>
     </section>
   )
 }
