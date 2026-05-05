@@ -88,6 +88,10 @@ export const UserProfileDetail = () => {
                 <td>{profile.subscriber_count}</td>
               </tr>
             )}
+            <tr>
+              <th>Approved Posts</th>
+              <td>{profile.post_count}</td>
+            </tr>
           </tbody>
         </table>
         <div className="mt-4 is-flex is-gap-3">
