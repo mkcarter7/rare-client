@@ -39,6 +39,11 @@ export const PostDetail = ({ isAdmin }) => {
   return (
     <section className="section">
       <div className="container">
+        {isAuthor && !post.approved && (
+          <div className="notification is-warning">
+            Your post is awaiting approval. It will appear in the Posts list once an admin approves it.
+          </div>
+        )}
         <h1 className="title">{post.title}</h1>
         <p className="subtitle">
           By {post.user.username}
