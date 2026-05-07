@@ -13,4 +13,9 @@ export default defineConfig({
       loader: { '.js': 'jsx' },
     },
   },
+  test: {
+    environment: 'happy-dom',
+    setupFiles: ['./src/setupTests.js'],
+    globals: true,
+  },
 })

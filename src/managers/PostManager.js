@@ -1,7 +1,7 @@
 import { API, authHeader } from "./api"
 
-export const getAllPosts = () => {
-  return fetch(`${API}/posts`, {
+export const getAllPosts = (page = 1) => {
+  return fetch(`${API}/posts?page=${page}`, {
     headers: authHeader()
   }).then(res => res.json())
 }

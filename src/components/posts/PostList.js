@@ -4,18 +4,30 @@ import { getAllPosts } from "../../managers/PostManager"
 import { getCategories } from "../../managers/CategoryManager"
 import { getTags } from "../../managers/TagManager"
 
+const PAGE_SIZE = 10
+
 export const PostList = () => {
   const [posts, setPosts] = useState([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [page, setPage] = useState(1)
   const [categories, setCategories] = useState([])
   const [tags, setTags] = useState([])
   const [selectedCategory, setSelectedCategory] = useState("")
   const navigate = useNavigate()
 
   useEffect(() => {
-    getAllPosts().then(setPosts)
+    getAllPosts(page).then(data => {
+      setPosts(data.results)
+      setTotalCount(data.count)
+    })
+  }, [page])
+
+  useEffect(() => {
     getCategories().then(setCategories)
     getTags().then(setTags)
   }, [])
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   const filteredPosts = selectedCategory
     ? posts.filter(post => post.category && post.category.id === parseInt(selectedCategory))
@@ -50,28 +62,50 @@ export const PostList = () => {
           </div>
         </div>
       </div>
-      <table className="table is-fullwidth is-striped">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Category</th>
-            <th>Published</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPosts.map(post => (
-            <tr key={post.id}>
-              <td>
-                <Link to={`/posts/${post.id}`}>{post.title}</Link>
-              </td>
-              <td>{post.user.username}</td>
-              <td>{post.category ? post.category.label : "—"}</td>
-              <td>{post.publication_date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="columns is-multiline mt-4">
+        {filteredPosts.map(post => (
+          <div key={post.id} className="column is-one-third">
+            <div className="card">
+              <div className="card-content">
+                <p className="title is-5">
+                  <Link to={`/posts/${post.id}`}>{post.title}</Link>
+                </p>
+                <p className="subtitle is-6">{post.user.full_name || post.user.username}</p>
+                {post.category && (
+                  <span className="tag is-info mb-3">{post.category.label}</span>
+                )}
+                <p className="content">
+                  {post.content?.slice(0, 150)}{post.content?.length > 150 ? "…" : ""}
+                </p>
+              </div>
+              <footer className="card-footer">
+                <span className="card-footer-item">{post.comment_count} comments</span>
+                <span className="card-footer-item">{post.reaction_count} reactions</span>
+                <span className="card-footer-item has-text-grey is-size-7">{post.publication_date}</span>
+              </footer>
+            </div>
+          </div>
+        ))}
+      </div>
+      {totalPages > 1 && (
+        <nav className="pagination is-centered mt-5" role="navigation" aria-label="pagination">
+          <button
+            className="pagination-previous"
+            onClick={() => setPage(p => p - 1)}
+            disabled={page === 1}
+          >
+            Previous
+          </button>
+          <button
+            className="pagination-next"
+            onClick={() => setPage(p => p + 1)}
+            disabled={page === totalPages}
+          >
+            Next
+          </button>
+          <p className="has-text-centered mt-2">Page {page} of {totalPages}</p>
+        </nav>
+      )}
     </div>
   )
 }
