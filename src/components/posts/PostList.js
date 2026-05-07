@@ -10,22 +10,28 @@ export const PostList = () => {
   const [posts, setPosts] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [page, setPage] = useState(1)
+  const [sort, setSort] = useState('newest')
   const [categories, setCategories] = useState([])
   const [tags, setTags] = useState([])
   const [selectedCategory, setSelectedCategory] = useState("")
   const navigate = useNavigate()
 
   useEffect(() => {
-    getAllPosts(page).then(data => {
+    getAllPosts(page, sort).then(data => {
       setPosts(data.results)
       setTotalCount(data.count)
     })
-  }, [page])
+  }, [page, sort])
 
   useEffect(() => {
     getCategories().then(setCategories)
     getTags().then(setTags)
   }, [])
+
+  const handleSortChange = (e) => {
+    setSort(e.target.value)
+    setPage(1)
+  }
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
@@ -57,6 +63,17 @@ export const PostList = () => {
                 {tags.map(tag => (
                   <option key={tag.id} value={tag.id}>{tag.label}</option>
                 ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <div className="select">
+              <select value={sort} onChange={handleSortChange}>
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="title_asc">Title (A–Z)</option>
               </select>
             </div>
           </div>

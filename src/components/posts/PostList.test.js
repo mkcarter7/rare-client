@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import { PostList } from './PostList'
+import { getAllPosts } from '../../managers/PostManager'
 
 const singlePost = {
   id: 1,
@@ -16,10 +18,10 @@ const singlePost = {
 }
 
 vi.mock('../../managers/PostManager', () => ({
-  getAllPosts: (page = 1) => Promise.resolve({
+  getAllPosts: vi.fn((page = 1) => Promise.resolve({
     count: page === 1 ? 1 : 0,
     results: page === 1 ? [singlePost] : [],
-  }),
+  })),
 }))
 
 vi.mock('../../managers/CategoryManager', () => ({
@@ -74,5 +76,24 @@ describe('PostList pagination', () => {
     renderPostList()
     await screen.findByText('Test Card Post')
     expect(screen.queryByRole('navigation', { name: 'pagination' })).toBeNull()
+  })
+})
+
+describe('PostList sorting', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('renders a sort dropdown with newest, oldest, and title options', async () => {
+    renderPostList()
+    await screen.findByText('Test Card Post')
+    expect(screen.getByDisplayValue('Newest First')).toBeDefined()
+    expect(screen.getByRole('option', { name: 'Oldest First' })).toBeDefined()
+    expect(screen.getByRole('option', { name: 'Title (A–Z)' })).toBeDefined()
+  })
+
+  it('changing sort to oldest refetches with sort=oldest and resets to page 1', async () => {
+    renderPostList()
+    await screen.findByText('Test Card Post')
+    userEvent.selectOptions(screen.getByDisplayValue('Newest First'), 'oldest')
+    expect(getAllPosts).toHaveBeenLastCalledWith(1, 'oldest')
   })
 })
